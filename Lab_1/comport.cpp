@@ -27,8 +27,7 @@ bool COMPort::openPort(QString portName, BYTE parity)
         }
         return false;
     }
-
-    dcb.BaudRate = 9600;
+    dcb.BaudRate = CBR_9600;
     dcb.Parity = parity;
     dcb.ByteSize = 8;
     dcb.StopBits = ONESTOPBIT;

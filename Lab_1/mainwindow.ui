@@ -108,22 +108,22 @@
            </item>
            <item>
             <property name="text">
-             <string>Even Parity</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
              <string>Odd Parity</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Space Parity</string>
+             <string>Even Parity</string>
             </property>
            </item>
            <item>
             <property name="text">
              <string>Mark Parity</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Space Parity</string>
             </property>
            </item>
           </widget>

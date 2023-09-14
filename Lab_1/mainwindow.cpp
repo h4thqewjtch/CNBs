@@ -39,7 +39,6 @@ QString MainWindow::getPortName2() const
     return portName2;
 }
 
-
 void MainWindow::on_btn_Connect_clicked()
 {
     if(!port1.openPort(portName1, parity))
@@ -83,8 +82,8 @@ void MainWindow::on_comboBox_activated(int index)
         break;
     }
     }
-    qDebug()<<portName1 <<"\n";
-    qDebug()<<portName2 <<"\n";
+    //qDebug()<<portName1 <<"\n";
+    //qDebug()<<portName2 <<"\n";
 
 }
 
@@ -95,31 +94,31 @@ void MainWindow::on_comboBox_2_activated(int index)
     {
     case 0:
     {
-        parity = 0;
+        parity = NOPARITY;
         break;
     }
     case 1:
     {
-        parity = 2;
+        parity = ODDPARITY;
         break;
     }
     case 2:
     {
-        parity = 3;
+        parity = EVENPARITY;
         break;
     }
     case 3:
     {
-        parity = 4;
+        parity = MARKPARITY;
         break;
     }
     case 4:
     {
-        parity = 5;
+        parity = SPACEPARITY;
         break;
     }
     }
-    qDebug()<< parity <<"\n";
+    //qDebug()<< parity <<"\n";
 }
 
 
