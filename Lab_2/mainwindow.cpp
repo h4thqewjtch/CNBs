@@ -123,7 +123,8 @@ void MainWindow::on_comboBox_2_activated(int index)
 void MainWindow::on_ln_Input_returnPressed()
 {
     ui->lst_Output->clear();
-    BYTE flag = 'z' + NUMBER;
+    //BYTE flag = 'z' + NUMBER;
+    BYTE flag = 'o';
     int count = data.size()%NUMBER;
     if(count)
     {
@@ -136,32 +137,16 @@ void MainWindow::on_ln_Input_returnPressed()
     {
 
         BYTE destinationAddress = '0';
-        if(destinationAddress==flag)
-        {
-            destinationAddress = 13;
-        }
         BYTE sourceAddress =  portName1[3].cell();
-        if(sourceAddress==flag)
-        {
-            sourceAddress = 13;
-        }
         BYTE bytes[7];
         for(int i = j, k = 0;i < j+NUMBER; i++, k++)
         {
             bytes[k]=data.toStdString()[i];
-            if(bytes[i]==flag)
-            {
-                bytes[i] = 13;
-            }
         }
         BYTE FCS = '0';
-        if(FCS==flag)
-        {
-            FCS = 13;
-        }
-        port1.set_packet(flag, destinationAddress, sourceAddress, bytes, FCS);
+        port1.set_packet(flag, destinationAddress, sourceAddress, bytes, FCS, 1);
         QString sended = "";
-        sended.push_back(QChar::fromLatin1(port1.get_packet().packetBegin));
+        sended.push_back(QChar::fromLatin1(port1.get_packet().flag));
         sended.push_back(QChar::fromLatin1(port1.get_packet().destinationAddress));
         sended.push_back(QChar::fromLatin1(port1.get_packet().sourceAddress));
         for(int i = 0;i<NUMBER;i++)
@@ -169,7 +154,6 @@ void MainWindow::on_ln_Input_returnPressed()
             sended.push_back(QChar::fromLatin1(port1.get_packet().data[i]));
         }
         sended.push_back(QChar::fromLatin1(port1.get_packet().FCS));
-        sended.push_back(QChar::fromLatin1(port1.get_packet().packetEnd));
         ui->lst_State->addItem("Sended shot" + QString::number(j/NUMBER+1) + ": " + sended);
         if(!port1.write_data())
         {
@@ -188,7 +172,7 @@ void MainWindow::on_ln_Input_returnPressed()
         }
         ui->lst_Output->addItem(str);
         QString received = "";
-        received.push_back(QChar::fromLatin1(port2.get_packet().packetBegin));
+        received.push_back(QChar::fromLatin1(port2.get_packet().flag));
         received.push_back(QChar::fromLatin1(port2.get_packet().destinationAddress));
         received.push_back(QChar::fromLatin1(port2.get_packet().sourceAddress));
         for(int i = 0;i<NUMBER;i++)
@@ -196,7 +180,6 @@ void MainWindow::on_ln_Input_returnPressed()
             received.push_back(QChar::fromLatin1(port2.get_packet().data[i]));
         }
         received.push_back(QChar::fromLatin1(port2.get_packet().FCS));
-        received.push_back(QChar::fromLatin1(port2.get_packet().packetEnd));
         ui->lst_State->addItem("Received shot" + QString::number(j/NUMBER+1) + ": " + received);
     }
 }

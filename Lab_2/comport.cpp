@@ -74,37 +74,17 @@ bool COMPort::read_data()
 {
     DWORD count = 0;
     packet p;
-    p.packetEnd = 0;
-    while(p.packetEnd == 0)
+    while(count!=sizeof(p))
     {
         if (!ReadFile(com, &p, sizeof(p), &count, NULL))
         {
-            CloseHandle(com);
-            com = 0;
-            cout << "ERROR_ReadFile\n";
-            return false;
+                CloseHandle(com);
+                com = 0;
+                cout << "ERROR_ReadFile\n";
+                return false;
         }
     }
-    if(p.destinationAddress == 13)
-    {
-        p.destinationAddress = p.packetBegin;
-    }
-    if(p.sourceAddress == 13)
-    {
-        p.sourceAddress = p.packetBegin;
-    }
-    for(int i = 0;i < NUMBER; i++)
-    {
-        if(p.data[i]==p.packetBegin)
-        {
-            p.data[i] = 13;
-        }
-    }
-    if(p.FCS == 13)
-    {
-        p.FCS = p.packetBegin;
-    }
-    set_packet(p.packetEnd,p.destinationAddress, p.sourceAddress, p.data, p.FCS);
+    set_packet(p.flag,p.destinationAddress, p.sourceAddress, p.data, p.FCS, 0);
     return true;
 }
 
@@ -116,16 +96,65 @@ void COMPort::close_port()
     }
 }
 
-void COMPort::set_packet(BYTE flag, BYTE destinationAddress, BYTE sourceAddress, BYTE* data, BYTE FCS)
+void COMPort::set_packet(BYTE flag, BYTE destinationAddress, BYTE sourceAddress, BYTE* data, BYTE FCS, bool staff)
 {
-    pack.packetBegin = pack.packetEnd = flag;
+    pack.flag = flag;
     pack.destinationAddress = destinationAddress;
     pack.sourceAddress = sourceAddress;
-    for(int i = 0; i < NUMBER; i++)
+    for(int i = 0;i < 7; i++)
     {
         pack.data[i] = data[i];
     }
     pack.FCS = FCS;
+    byte_staffing(staff,pack);
+}
+
+void COMPort::byte_staffing(bool staff,packet &pack)
+{
+    if(staff)
+    {
+        if(pack.destinationAddress==pack.flag)
+        {
+            pack.destinationAddress = 13;
+        }
+        if(pack.sourceAddress==pack.flag)
+        {
+            pack.sourceAddress = 13;
+        }
+        for(int i = 0;i < 7; i++)
+        {
+            if(pack.data[i]==pack.flag)
+            {
+                pack.data[i] = 13;
+            }
+        }
+        if(pack.FCS==pack.flag)
+        {
+            pack.FCS = 13;
+        }
+    }
+    else
+    {
+        if(pack.destinationAddress==13)
+        {
+            pack.destinationAddress = pack.flag;
+        }
+        if(pack.sourceAddress==13)
+        {
+            pack.sourceAddress = pack.flag;
+        }
+        for(int i = 0;i < 7; i++)
+        {
+            if(pack.data[i]==13)
+            {
+                pack.data[i] = pack.flag;
+            }
+        }
+        if(pack.FCS==13)
+        {
+            pack.FCS = pack.flag;
+        }
+    }
 }
 
 COMPort::packet COMPort::get_packet()

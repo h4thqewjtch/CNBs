@@ -14,12 +14,11 @@ public:
 
     struct packet
     {
-        BYTE packetBegin;
+        BYTE flag;
         BYTE destinationAddress;
         BYTE sourceAddress;
         BYTE data[NUMBER];
         BYTE FCS;
-        BYTE packetEnd;
     };
 
     COMPort() = default;
@@ -32,7 +31,9 @@ public:
 
     void close_port();
 
-    void set_packet(BYTE, BYTE, BYTE, BYTE*, BYTE);
+    void set_packet(BYTE, BYTE, BYTE, BYTE*, BYTE, bool);
+
+    void byte_staffing(bool, packet&);
 
     packet get_packet();
 
