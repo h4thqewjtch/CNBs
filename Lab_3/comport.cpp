@@ -58,7 +58,6 @@ bool COMPort::write_data()
         count != sizeof(p))
     {
         CloseHandle(com);
-        com = 0;
         cout << "ERROR_WriteFile\n";
         return false;
     }
@@ -69,17 +68,21 @@ bool COMPort::read_data()
 {
     DWORD count = 0;
     packet p;
-    while(count!=sizeof(p))
+    int attempts = NUMBER;
+    while(count!=sizeof(p) && attempts)
     {
         if (!ReadFile(com, &p, sizeof(p), &count, NULL))
         {
-                CloseHandle(com);
-                com = 0;
-                cout << "ERROR_ReadFile\n";
-                return false;
+            CloseHandle(com);
+            cout << "ERROR_ReadFile\n";
+            return false;
         }
+        attempts--;
     }
-    set_packet(p.flag,p.destinationAddress, p.sourceAddress, p.data, p.FCS, 0);
+    if(!set_packet(p.flag,p.destinationAddress, p.sourceAddress, p.data, p.FCS, 0) || (!attempts && count!=sizeof(p)))
+    {
+        return false;
+    }
     return true;
 }
 
@@ -91,7 +94,7 @@ void COMPort::close_port()
     }
 }
 
-void COMPort::set_packet(BYTE flag, BYTE destinationAddress, BYTE sourceAddress, BYTE* data, BYTE FCS, bool staff)
+bool COMPort::set_packet(BYTE flag, BYTE destinationAddress, BYTE sourceAddress, BYTE* data, uint16_t FCS, bool staff)
 {
     pack.flag = flag;
     pack.destinationAddress = destinationAddress;
@@ -100,11 +103,38 @@ void COMPort::set_packet(BYTE flag, BYTE destinationAddress, BYTE sourceAddress,
     {
         pack.data[i] = data[i];
     }
-    pack.FCS = FCS;
-    byte_staffing(staff,pack);
+    if(staff)
+    {
+        byte_staffing(staff);
+        pack.FCS = calculate_CRC_16(pack.data);
+        printf("\n\n\n byte %d: %02X \n", NUMBER-1, pack.data[NUMBER-1]);
+        pack.data[NUMBER-1] ^= (1 << 4);
+        printf("changed byte %d: %02X \n\n\n\n", NUMBER-1, pack.data[NUMBER-1]);
+        cout <<"\nSended pack.FCS: "<< pack.FCS <<"\n";
+    }
+    else
+    {
+        pack.FCS = FCS;
+        if(pack.FCS==calculate_CRC_16(pack.data) || correction())
+        {
+            byte_staffing(staff);
+            cout <<"\nReceived pack.FCS: "<< pack.FCS <<"\n";
+        }
+        else
+        {
+            cout << "ERROR_CRC_16\n";
+            return false;
+        }
+    }
+    return true;
 }
 
-void COMPort::byte_staffing(bool staff,packet &pack)
+COMPort::packet COMPort::get_packet()
+{
+    return pack;
+}
+
+void COMPort::byte_staffing(bool staff)
 {
     if(staff)
     {
@@ -122,10 +152,6 @@ void COMPort::byte_staffing(bool staff,packet &pack)
             {
                 pack.data[i] = 13;
             }
-        }
-        if(pack.FCS==pack.flag)
-        {
-            pack.FCS = 13;
         }
     }
     else
@@ -145,14 +171,48 @@ void COMPort::byte_staffing(bool staff,packet &pack)
                 pack.data[i] = pack.flag;
             }
         }
-        if(pack.FCS==13)
-        {
-            pack.FCS = pack.flag;
-        }
     }
 }
 
-COMPort::packet COMPort::get_packet()
-{
-    return pack;
+uint16_t COMPort::calculate_CRC_16(BYTE* array) {
+    uint16_t crc = 0xFFFF;
+    for (int i = 0; i < NUMBER; i++) {
+        crc ^= array[i];
+        for (int j = 0; j < 8; j++) {
+            if (crc & 0x0001) {
+                crc = (crc >> 1) ^ 0xA001;
+            } else {
+                crc = crc >> 1;
+            }
+        }
+    }
+    return crc;
 }
+
+bool COMPort::correction()
+{
+    BYTE bytes[NUMBER];
+    for(int i = 0; i < NUMBER; i++)
+    {
+        bytes[i] = pack.data[i];
+    }
+    for(int i=0;i<NUMBER;i++)
+    {
+        for(int j = 0; j < 8; j++)
+        {
+                // Изменение бита в массиве байтов на противоположное состояние
+                bytes[i] ^= (1 << j);
+                if(pack.FCS==calculate_CRC_16(bytes))
+                {
+                    pack.data[i] = bytes[i];
+                    return true;
+                }
+                else
+                {
+                    bytes[i] ^= (1 << j);
+                }
+        }
+    }
+   return false;
+}
+

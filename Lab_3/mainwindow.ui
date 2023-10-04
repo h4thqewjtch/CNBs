@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>680</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>680</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="0" colspan="3">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>Input/Output Panel</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QLineEdit" name="ln_Input"/>
+         </item>
+         <item>
+          <widget class="QListWidget" name="lst_Output"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="4" column="2">
+     <widget class="QGroupBox" name="groupBox_3">
+      <property name="minimumSize">
+       <size>
+        <width>328</width>
+        <height>266</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>State Panel</string>
+      </property>
+      <widget class="QListWidget" name="lst_State">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>30</y>
+         <width>311</width>
+         <height>221</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item row="4" column="0" colspan="2">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Control Panel</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>CHOOSE PAIR OF COM-PORTS</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="COMPairs">
+           <item>
+            <property name="text">
+             <string>COM3&lt;-&gt;COM8</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>COM7&lt;-&gt;COM4</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>CHOOSE TYPE OF PARITY</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="Parity">
+           <item>
+            <property name="text">
+             <string>No Parity</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Even Parity</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Odd Parity</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Space Parity</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Mark Parity</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_Connect">
+           <property name="text">
+            <string>CONNECT</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>680</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
