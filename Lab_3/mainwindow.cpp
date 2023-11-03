@@ -57,28 +57,28 @@ void MainWindow::on_btn_Connect_clicked()
 
 void MainWindow::on_COMPairs_activated(int index)
 {
-    if(!portName1.isEmpty())
-    {
-        port1.close_port();
-        ui->lst_State->addItem(portName1+" is closed");
-    }
-    if(!portName2.isEmpty())
-    {
-        port2.close_port();
-        ui->lst_State->addItem(portName2+" is closed");
-    }
+//    if(!portName1.isEmpty())
+//    {
+//        port1.close_port();
+//        ui->lst_State->addItem(portName1+" is closed");
+//    }
+//    if(!portName2.isEmpty())
+//    {
+//        port2.close_port();
+//        ui->lst_State->addItem(portName2+" is closed");
+//    }
     switch(index)
     {
     case 0:
     {
         portName1 = "COM3";
-        portName2 = "COM8";
+        portName2 = "COM4";
         break;
     }
     case 1:
     {
         portName1 = "COM7";
-        portName2 = "COM4";
+        portName2 = "COM6";
         break;
     }
     }
@@ -121,49 +121,62 @@ void MainWindow::on_ln_Input_returnPressed()
     ui->lst_Output->clear();
     //BYTE flag = 'z' + NUMBER;
     BYTE flag = 'o';
-    int count = data.size()%NUMBER;
-    if(count)
+    if(!data.isEmpty())
     {
-        while(count++<NUMBER)
+        data = data.append("|");
+        int count = data.size()%NUMBER;
+        if(count)
         {
-            data.push_back(QChar(0));
+            while(count++<NUMBER)
+            {
+                data.push_back(QChar(0));
+            }
         }
     }
-    for(int j = 0;j<data.size();j+=NUMBER)
+    BYTE bytes[NUMBER];
+    for(int j = 0;;j+=NUMBER)
     {
+        if(!data.isEmpty())
+        {
+            BYTE destinationAddress = '0';
+            BYTE sourceAddress =  portName1[3].cell();
 
-        BYTE destinationAddress = '0';
-        BYTE sourceAddress =  portName1[3].cell();
-        BYTE bytes[7];
-        for(int i = j, k = 0;i < j+NUMBER; i++, k++)
-        {
-            bytes[k]=data.toStdString()[i];
-        }
-        port1.set_packet(flag, destinationAddress, sourceAddress, bytes, 0, 1);
-        QString sended = "";
-        sended.push_back(QChar::fromLatin1(port1.get_packet().flag));
-        sended.push_back(QChar::fromLatin1(port1.get_packet().destinationAddress));
-        sended.push_back(QChar::fromLatin1(port1.get_packet().sourceAddress));
-        for(int i = 0;i<NUMBER;i++)
-        {
-            sended.push_back(QChar::fromLatin1(port1.get_packet().data[i]));
-        }
-        sended.push_back(QChar::fromLatin1(port1.get_packet().FCS));
-        ui->lst_State->addItem("Sended shot" + QString::number(j/NUMBER+1) + ": " + sended);
-        if(!port1.write_data())
-        {
-            QMessageBox::critical(this, "ERROR", "Data not record");
-            return;
+            for(int i = j, k = 0;i < j+NUMBER; i++, k++)
+            {
+                bytes[k]=data.toStdString()[i];
+            }
+            port1.set_packet(flag, destinationAddress, sourceAddress, bytes, 0, 1);
+            QString sended = "";
+            sended.push_back(QChar::fromLatin1(port1.get_packet().flag));
+            sended.push_back(QChar::fromLatin1(port1.get_packet().destinationAddress));
+            sended.push_back(QChar::fromLatin1(port1.get_packet().sourceAddress));
+            for(int i = 0;i<NUMBER;i++)
+            {
+                sended.push_back(QChar::fromLatin1(port1.get_packet().data[i]));
+            }
+            sended.push_back(QChar::fromLatin1(port1.get_packet().FCS));
+            ui->lst_State->addItem("Sended shot" + QString::number(j/NUMBER+1) + ": " + sended);
+            if(!port1.write_data())
+            {
+                QMessageBox::critical(this, "ERROR", "Data not record");
+                break;
+            }
         }
         if(!port2.read_data())
         {
             QMessageBox::critical(this, "ERROR", "Data not read");
-            return;
+            break;
         }
         QString str="";
+        bool end = 0;
         for(int i = 0;i<NUMBER;i++)
         {
-            str.push_back(QChar::fromLatin1(port2.get_packet().data[i]));
+            bytes[i] = port2.get_packet().data[i];
+            if(bytes[i]=='|')
+            {
+                end = 1;
+            }
+            str.push_back(QChar::fromLatin1(bytes[i]));
         }
         ui->lst_Output->addItem(str);
         QString received = "";
@@ -172,9 +185,13 @@ void MainWindow::on_ln_Input_returnPressed()
         received.push_back(QChar::fromLatin1(port2.get_packet().sourceAddress));
         for(int i = 0;i<NUMBER;i++)
         {
-            received.push_back(QChar::fromLatin1(port2.get_packet().data[i]));
+            received.push_back(QChar::fromLatin1(bytes[i]));
         }
         received.push_back(QChar::fromLatin1(port2.get_packet().FCS));
         ui->lst_State->addItem("Received shot" + QString::number(j/NUMBER+1) + ": " + received);
+        if(end)
+        {
+            break;
+        }
     }
 }

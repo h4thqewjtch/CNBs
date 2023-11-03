@@ -82,7 +82,7 @@
           <widget class="QComboBox" name="COMPairs">
            <item>
             <property name="text">
-             <string>COM3&lt;-&gt;COM8</string>
+             <string>COM3&lt;-&gt;COM6</string>
             </property>
            </item>
            <item>
